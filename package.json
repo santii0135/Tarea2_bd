@@ -1,0 +1,21 @@
+{
+  "name": "communiken",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^20.14.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0",
+    "body-parser": "^1.20.2",
+    "elysia": "^1.0.23",
+    "express": "^4.19.2",
+    "prisma": "^5.15.0"
+  }
+}
