@@ -4,17 +4,38 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const app = new Elysia().decorate("db", prisma);
 
-interface user {
-  id: number;
-  nombre: string;
-  correo: string;
-  clave: string;
-  descripcion: string;
-}
+type ReqCtx = Context <{ body: unknown, params: unknown, set: undefined }>;
 
+app.post("/api/registrar", async ({db, body}) => {
+  try {
+    // Attempt to create a user in the database
+    const user = await db.user.create({
+      data: body as user
+    });
+
+    // Return a success response if the user is created successfully
+    return { status: 200, message: "Usuario creado correctamente", user };
+  } catch (error:unknown) {
+    // Handle specific errors like unique constraint violations (e.g., user already exists)
+    if (error.code === 'P2002') {  
+      return { status: 400, message: "Usuario ya existe" };
+    }
+    // Handle other generic errors
+    return { status: 500, message: "Error interno del servidor", error: error.message };
+  }
+});
+
+
+// Definir el modelo de usuario
 app.get("/api/usuarios", async ({ db }) => {
   return db.user.findMany();
 });
+
+
+app.get("/api/info/:correo", async ({ db, params }) => {
+  return db.user.findUnique({where: {correo: String(params.correo)}});
+});
+
 
 app.get("/api/informacion/:correo", async ({ params, set }) => {
   const { correo } = params;
@@ -49,25 +70,24 @@ app.get("/api/informacion/:correo", async ({ params, set }) => {
 });
 
 
-app.post("/api/registrar", async ({db, body}) => {
-  try {
-    // Attempt to create a user in the database
-    const user = await db.user.create({
-      data: body as user
-    });
+app.post("/api/bloquear", async ({ db, body }) => {
+  const { correo , clave, correo_bloquear} = body;
+  if (correo === correo_bloquear) {
+    return { status: 400, message: "No puedes bloquearte a ti mismo" };
+  } // Verify user credentials
+  const user = await db.user.findUnique({
+    where: { correo: correo },
+  });
 
-    // Return a success response if the user is created successfully
-    return { status: 200, message: "Usuario creado correctamente", user };
-  } catch (error) {
-    // Handle specific errors like unique constraint violations (e.g., user already exists)
-    if (error.code === 'P2002') {  
-      return { status: 400, message: "Usuario ya existe" };
-    }
-    // Handle other generic errors
-    return { status: 500, message: "Error interno del servidor", error: error.message };
+  if (!user || user.clave !== clave) {
+    return { status: 400, message: "Credenciales incorrectas" };
   }
-});
 
+  // Block the user
+  const bloquear = await db.Bloquear.create({
+    data: { correo, correo_bloquear },
+  });
+});
 
 /*
 // Endpoint para registrar un usuario

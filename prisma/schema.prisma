@@ -14,9 +14,17 @@ datasource db {
 }
 
 model User {
-  id          Int     @id @default(autoincrement())
-  nombre      String
-  correo      String  @unique
-  clave       String
-  descripcion String?
+  id                  Int                  @id @default(autoincrement())
+  nombre              String
+  correo              String               @unique
+  clave               String
+  descripcion         String?           
+  bloqueo             Bloquear[]
+}
+
+model Bloquear {
+  id              Int     @id @default(autoincrement())
+  correo          String
+  correo_bloquear String
+  Correo          User    @relation(fields: [correo], references: [correo])
 }
