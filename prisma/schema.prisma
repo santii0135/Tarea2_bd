@@ -20,6 +20,7 @@ model User {
   clave               String
   descripcion         String?           
   bloqueo             Bloquear[]
+  favorito            Favorito[]
 }
 
 model Bloquear {
@@ -27,4 +28,11 @@ model Bloquear {
   correo          String
   correo_bloquear String
   Correo          User    @relation(fields: [correo], references: [correo])
+}
+
+model Favorito {
+  id                  Int @id @default(autoincrement())
+  correo              String
+  id_correo_favorito  Int
+  Correo              User @relation(fields: [correo], references: [correo])
 }
