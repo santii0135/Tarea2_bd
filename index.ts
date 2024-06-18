@@ -8,12 +8,12 @@ app.post("/api/registrar", async ({db, body}) => {
   try {
     // Attempt to create a user in the database
     const user = await db.user.create({
-      data: body as user
+      data: body as { nombre: string, correo: string, clave: string },
     });
 
     // Return a success response if the user is created successfully
     return { estado: 200, message: "Usuario creado correctamente", user };
-  } catch (error:unknown) {
+  } catch (error) {
     // Handle specific errors like unique constraint violations (e.g., user already exists)
     if (error.code === 'P2002') {  
       return { estado: 400, message: "Usuario ya existe" };
@@ -39,7 +39,7 @@ app.get("/api/informacion/:correo", async ({ db, params }) => {
 });
 
 app.post("/api/bloquear", async ({ db, body }) => {
-  const { correo , clave, correo_bloquear} = body;
+  const { correo , clave, correo_bloquear} = body as { correo: string, clave: string, correo_bloquear: string };
   if (correo === correo_bloquear) {
     return { estado: 400, message: "No puedes bloquearte a ti mismo" };
   }
@@ -56,7 +56,7 @@ app.post("/api/bloquear", async ({ db, body }) => {
     return { estado: 400, message: "Credenciales incorrectas" };
   }
   // Verificar si ya existe un bloqueo
-  const existeBloqueo = await db.Bloquear.findFirst({
+  const existeBloqueo = await db.bloquear.findFirst({
     where: {
       correo: correo,
       correo_bloquear: correo_bloquear
@@ -74,7 +74,7 @@ app.post("/api/bloquear", async ({ db, body }) => {
   if (!usuarioABloquear) {
     return { estado: 404, mensaje: "Usuario a bloquear no encontrado" };
   }
-  const bloquear = await db.Bloquear.create({
+  const bloquear = await db.bloquear.create({
     data: { correo, correo_bloquear },
   });
   return { estado: 200, mensaje: "Usuario bloqueado correctamente" };
@@ -83,7 +83,7 @@ app.post("/api/bloquear", async ({ db, body }) => {
 
 
 app.post("/api/marcarcorreo", async ({ db, body }) => {
-  const { correo , clave, id_correo_favorito} = body;
+  const { correo , clave, id_correo_favorito} = body as { correo: string, clave: string, id_correo_favorito: number};
     // Verificar credenciales
   const user = await db.user.findUnique({
     where: { correo: correo },
@@ -97,7 +97,7 @@ app.post("/api/marcarcorreo", async ({ db, body }) => {
     return { estado: 400, message: "Credenciales incorrectas" };
   }
   // Verificar si ya existe un bloqueo
-  const existeFavorito = await db.Favorito.findFirst({
+  const existeFavorito = await db.favorito.findFirst({
     where: {
       correo: correo,
       id_correo_favorito: id_correo_favorito
@@ -115,7 +115,7 @@ app.post("/api/marcarcorreo", async ({ db, body }) => {
   if (!usuarioFavorito) {
     return { estado: 404, mensaje: "Usuario a marcar no encontrado" };
   }
-  await db.Favorito.create({
+  await db.favorito.create({
     data: { correo, id_correo_favorito},
   });
   return { estado: 200, mensaje: "Usuario marcado correctamente" };
@@ -123,7 +123,7 @@ app.post("/api/marcarcorreo", async ({ db, body }) => {
 
 
 app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
-  const { correo , clave, id_correo_favorito} = body;
+  const { correo , clave, id_correo_favorito} = body as { correo: string, clave: string, id_correo_favorito: number};
     // Verificar credenciales
   const user = await db.user.findUnique({
     where: { correo: correo },
@@ -137,7 +137,7 @@ app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
     return { estado: 400, message: "Credenciales incorrectas" };
   }
   // Verificar si ya existe un bloqueo
-  const existeFavorito = await db.Favorito.findFirst({
+  const existeFavorito = await db.favorito.findFirst({
     where: {
       correo: correo,
       id_correo_favorito: id_correo_favorito
@@ -154,7 +154,7 @@ app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
   if (!usuarioFavorito) {
     return { estado: 404, mensaje: "Usuario a desmarcar no encontrado" };
   }
-  await db.Favorito.delete({
+  await db.favorito.delete({
     where: {
       id: existeFavorito.id
     }
