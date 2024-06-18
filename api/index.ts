@@ -24,12 +24,12 @@ app.post("/api/registrar", async ({db, body}) => {
 });
 
 
-// Definir el modelo de usuario
+// Mostrar todos los usuarios
 app.get("/api/usuarios", async ({ db }) => {
   return db.user.findMany();
 });
 
-
+// Mostrar información de un usuario
 app.get("/api/informacion/:correo", async ({ db, params }) => {
   try {
     return db.user.findUnique({where: {correo: String(params.correo)}});
@@ -38,6 +38,7 @@ app.get("/api/informacion/:correo", async ({ db, params }) => {
   }
 });
 
+// Bloquear a un usuario
 app.post("/api/bloquear", async ({ db, body }) => {
   const { correo , clave, correo_bloquear} = body as { correo: string, clave: string, correo_bloquear: string };
   if (correo === correo_bloquear) {
@@ -81,7 +82,7 @@ app.post("/api/bloquear", async ({ db, body }) => {
 });
 
 
-
+// Marcar a un usuario como favorito
 app.post("/api/marcarcorreo", async ({ db, body }) => {
   const { correo , clave, id_correo_favorito} = body as { correo: string, clave: string, id_correo_favorito: number};
     // Verificar credenciales
@@ -96,7 +97,7 @@ app.post("/api/marcarcorreo", async ({ db, body }) => {
   if (!user || user.clave !== clave) {
     return { estado: 400, message: "Credenciales incorrectas" };
   }
-  // Verificar si ya existe un bloqueo
+  // Verificar si ya esta marcado como favorito
   const existeFavorito = await db.favorito.findFirst({
     where: {
       correo: correo,
@@ -107,7 +108,7 @@ app.post("/api/marcarcorreo", async ({ db, body }) => {
     return { estado: 400, mensaje: "El usuario ya ha sido marcado como favorito" };
   }
   // Marcar al usuario
-  // Verificar si el usuario a ser favorito
+  // Verificar si el usuario a ser favorito existe
   const usuarioFavorito = await db.user.findUnique({
     where: { id: id_correo_favorito },
   });
@@ -122,6 +123,7 @@ app.post("/api/marcarcorreo", async ({ db, body }) => {
 });
 
 
+// Desmarcar a un usuario de favorito
 app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
   const { correo , clave, id_correo_favorito} = body as { correo: string, clave: string, id_correo_favorito: number};
     // Verificar credenciales
@@ -136,7 +138,7 @@ app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
   if (!user || user.clave !== clave) {
     return { estado: 400, message: "Credenciales incorrectas" };
   }
-  // Verificar si ya existe un bloqueo
+  // Verificar si esta marcado como favorito
   const existeFavorito = await db.favorito.findFirst({
     where: {
       correo: correo,
@@ -146,7 +148,7 @@ app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
   if (!existeFavorito) {
     return { estado: 400, mensaje: "El usuario no ha sido marcado como favorito" };
   }
-  // Verificar si el usuario a ser favorito
+  // Verificar si el usuario a desmarcar existe
   const usuarioFavorito = await db.user.findUnique({
     where: { id: id_correo_favorito },
   });
