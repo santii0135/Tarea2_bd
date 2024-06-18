@@ -115,74 +115,52 @@ app.post("/api/marcarcorreo", async ({ db, body }) => {
   if (!usuarioFavorito) {
     return { estado: 404, mensaje: "Usuario a marcar no encontrado" };
   }
-  const favorito = await db.Favorito.create({
+  await db.Favorito.create({
     data: { correo, id_correo_favorito},
   });
   return { estado: 200, mensaje: "Usuario marcado correctamente" };
 });
 
-/*
-app.get("/api/informacion/:correo", async ({ params, set }) => {
-  const { correo } = params;
 
-  try {
-    const user = await prisma.user.findUnique({
-      where: { correo: correo }
-    });
+app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
+  const { correo , clave, id_correo_favorito} = body;
+    // Verificar credenciales
+  const user = await db.user.findUnique({
+    where: { correo: correo },
+  });
 
-    if (user) {
-      set.estado = 200;
-      return {
-        estado: 200,
-        nombre: user.nombre,
-        correo: user.correo,
-        descripcion: user.descripcion
-      };
-    } else {
-      set.estado = 404;
-      return {
-        estado: 404,
-        mensaje: "Usuario no encontrado"
-      };
+  if (!user) {
+    return { estado: 404, mensaje: "Usuario no encontrado" };
+  }
+
+  if (!user || user.clave !== clave) {
+    return { estado: 400, message: "Credenciales incorrectas" };
+  }
+  // Verificar si ya existe un bloqueo
+  const existeFavorito = await db.Favorito.findFirst({
+    where: {
+      correo: correo,
+      id_correo_favorito: id_correo_favorito
     }
-  } catch (error) {
-    set.estado = 500;
-    return {
-      estado: 500,
-      mensaje: "Error interno del servidor"
-    };
+  });
+  if (!existeFavorito) {
+    return { estado: 400, mensaje: "El usuario no ha sido marcado como favorito" };
   }
-});
-*/
+  // Verificar si el usuario a ser favorito
+  const usuarioFavorito = await db.user.findUnique({
+    where: { id: id_correo_favorito },
+  });
 
-
-
-/*
-// Endpoint para registrar un usuario
-app.post("/api/registrarrr", async (req, res) => {
-  // Extract data from the request body
-  const { nombre, correo, clave, descripcion } = req.body;
-
-  try {
-    // Try to create a user in the database
-    const user = await prisma.user.create({
-      data: { nombre, correo, clave, descripcion },
-    });
-
-    // If user is created successfully, send a success response
-    res.send({
-      estado: 200,
-      message: "Se realizó la petición correctamente"
-    });
-  } catch (error) {
-    // If there is an error, send an error response
-    res.send({
-      estado: 400,
-      message: "Ha existido un error al realizar la petición"
-    });
+  if (!usuarioFavorito) {
+    return { estado: 404, mensaje: "Usuario a desmarcar no encontrado" };
   }
+  await db.Favorito.delete({
+    where: {
+      id: existeFavorito.id
+    }
+  });
+  return { estado: 200, mensaje: "Usuario desmarcado correctamente" };
 });
-*/
 
 // Iniciar el servidor en el puerto 3000
 app.listen(3000, () => {
