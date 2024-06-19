@@ -23,20 +23,39 @@ app.post("/api/registrar", async ({db, body}) => {
   }
 });
 
-
-// Mostrar todos los usuarios
-app.get("/api/usuarios", async ({ db }) => {
-  return db.user.findMany();
+//Mostrar todos los usuarios mmarcaos como favoritos por un usuario
+app.get("/api/favoritos/:correo", async ({ db, params }) => {
+  const favoritos = await db.favorito.findMany({
+    where: { correo: String(params.correo) },
+    select: { id_correo_favorito: true }
+  });
+  if (favoritos.length === 0) {
+    return { estado: 404, message: "No se encontraron favoritos para este usuario" };
+  }
+  return { estado: 200, favoritos };
 });
+
 
 // Mostrar información de un usuario
 app.get("/api/informacion/:correo", async ({ db, params }) => {
-  try {
-    return db.user.findUnique({where: {correo: String(params.correo)}});
-  } catch (error) {
+  const user = await db.user.findUnique({
+    where: { correo: String(params.correo) },
+    select: {
+      id: true,
+      nombre: true,
+      correo: true,
+      descripcion: true,
+      // Excluir la clave
+    }
+  });
+
+  if (!user) {
     return { estado: 404, message: "Usuario no encontrado" };
   }
+
+  return user;
 });
+
 
 // Bloquear a un usuario
 app.post("/api/bloquear", async ({ db, body }) => {
@@ -162,6 +181,14 @@ app.delete("/api/desmarcarcorreo", async ({ db, body }) => {
     }
   });
   return { estado: 200, mensaje: "Usuario desmarcado correctamente" };
+});
+
+app.get("/api/login/:correo", async ({ db, params }) => {
+  const user = await db.user.findUnique({ where: { correo: String(params.correo) } });
+  if (!user) {
+    return { estado: 404, message: "Usuario no encontrado" };
+  }
+  return user;
 });
 
 // Iniciar el servidor en el puerto 3000
