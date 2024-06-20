@@ -56,6 +56,11 @@ def main():
                 print(f"\033[96mFavoritos para {correo}:\033[0m")
                 for favorito in favoritos:
                     print(f"ID de correo favorito: {favorito['id_correo_favorito']}")
+                    info_correo = requests.get(f"{base_url}/info_correo/{favorito['id_correo_favorito']}").json()
+                    print(f"Remitente: {info_correo['remitente_id']}")
+                    print(f"Destinatario: {info_correo['destinatario_id']}")
+                    print(f"Asunto: {info_correo['asunto']}\n")
+
 
         elif opcion == '3':
             try:
