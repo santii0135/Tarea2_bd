@@ -1,16 +1,33 @@
-Tarea 2 Base de Datos
-Asegurese de tener instalada la ultima version de nodejs
+### Tarea 2: Base de Datos
 
-Antes de ejecutar:
-sudo snap install bun-js
+**Pre-requisitos:**
+- Asegúrese de tener instalada la última versión de Node.js
 
-Dentro de la carpeta api:
-bun add @prisma/client prisma
-npm install elysia
-npx generate prisma
+**Configuración inicial:**
+1. Instale `bun-js` utilizando snap:
+   sudo snap install bun-js
 
-Luego para ejecutar:
-En /api
-bun run index.ts
-En /client
-python client.py
+**Configuración de la API:**
+1. Navegue a la carpeta `api`:
+   cd api
+
+2. Agregue las dependencias necesarias con Bun:
+   bun add @prisma/client prisma
+
+3. Instale `elysia` utilizando npm:
+   npm install elysia
+
+4. Genere los archivos necesarios con Prisma:
+   npx generate prisma
+
+5. Se debe editar el .env y colocar el nombre de la BD con su usuario y contraseña para conectarlo con PrismaJS
+   
+**Ejecución:**
+1. Dentro de la carpeta `/api`, ejecute:
+   bun run index.ts
+
+2. En la carpeta `/client`, ejecute:
+   python client.py
+
+Seguir las instrucciones del menú
+
