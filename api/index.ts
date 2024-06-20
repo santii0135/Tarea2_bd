@@ -185,7 +185,7 @@ app.get("/api/login/:correo", async ({ db, params }) => {
   return user;
 });
 
-//Mostrar todos los usuarios mmarcados como favoritos por un usuario
+//Mostrar todos los usuarios marcados como favoritos por un usuario
 app.get("/api/favoritos/:correo", async ({ db, params }) => {
   console.log(`[${new Date().toLocaleTimeString()}] Mostrar correos marcados como favoritos por el usuario: ${params.correo}`);
   const favoritos = await db.favorito.findMany({
@@ -198,6 +198,8 @@ app.get("/api/favoritos/:correo", async ({ db, params }) => {
   return { estado: 200, favoritos };
 });
 
+
+//Obtener detalles de un correo
 app.get("/api/info_correo/:id", async ({ db, params }) => {
   console.log(`[${new Date().toLocaleTimeString()}] Mostrar información del correo con ID: ${params.id}`);
   const correo = await db.correo.findUnique({
