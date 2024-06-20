@@ -35,4 +35,13 @@ model favorito {
   correo              String
   id_correo_favorito  Int
   Correo              user @relation(fields: [correo], references: [correo])
+  CorreoFavorito      correo @relation(fields: [id_correo_favorito], references: [id])
+}
+
+model correo {
+  id                Int   @id @default(autoincrement())
+  remitente_id      Int 
+  destinatario_id   Int
+  asunto            String
+  favorito          favorito[]
 }
