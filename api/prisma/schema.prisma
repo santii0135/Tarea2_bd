@@ -44,4 +44,5 @@ model correo {
   destinatario_id   Int
   asunto            String
   favorito          favorito[]
+  cuerpo            String?
 }
